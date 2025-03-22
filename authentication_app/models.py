@@ -1,31 +1,18 @@
 from django.db import models
 
-   
-class Client(models.Model):
-    pass
-    # user = models.OneToOneField(User, on_delete=models.CASCADE)    
-    # color = models.CharField(max_length=25, blank=False, default=None)
-    # text_color = models.CharField(max_length=25, blank=False, default=None)
-    # phone = models.CharField(max_length=25, blank=True, default=None)
+# USER_TYPE = {
+#     "customer": "customer",
+#     "business": "business",
+# }
+
+#username = models.OneToOneField(User, on_delete=models.CASCADE) # vom Auth user model
+#email = models.CharField(max_length=25, blank=False, default=None) # vom Auth user model
+#password = models.CharField(max_length=25, blank=False, default=None) # vom Auth user model  
+
+# class UserAccount(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE) 
+#     type = models.CharField(max_length=50, choices=USER_TYPE,blank=False)
     
-    # class Meta:
-    #     verbose_name = "User account"
-    #     verbose_name_plural = "User accounts"
-    
-    # def __str__(self):
-    #     return f"{self.user}"
-    
-class Provider(models.Model):
-    pass
-    # user = models.OneToOneField(User, on_delete=models.CASCADE)    
-    # color = models.CharField(max_length=25, blank=False, default=None)
-    # text_color = models.CharField(max_length=25, blank=False, default=None)
-    # phone = models.CharField(max_length=25, blank=True, default=None)
-    
-    # class Meta:
-    #     verbose_name = "User account"
-    #     verbose_name_plural = "User accounts"
-    
-    # def __str__(self):
-    #     return f"{self.user}"
+#     def __str__(self):
+#         return f"{self.user}"
 
