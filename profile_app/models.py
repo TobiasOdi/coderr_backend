@@ -20,4 +20,4 @@ class Profile(models.Model):
     uploaded_at = models.CharField(max_length=200, blank=True)
     description = models.CharField(max_length=200, blank=True)
     working_hours = models.CharField(max_length=50, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.CharField(max_length=50, blank=False)

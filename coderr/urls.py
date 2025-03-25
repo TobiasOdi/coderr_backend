@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from authentication_app.api.views import RegistrationView, LoginView, BaseInfoView
+from profile_app.api.views import ProfileInfoView
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
@@ -24,7 +25,7 @@ urlpatterns = [
     path('api/base-info/', BaseInfoView.as_view()),
     path('api/registration/', RegistrationView.as_view()),
     path('api/login/', LoginView.as_view()),
-    path('profile/', include('profile_app.api.urls')),    
-    path('profiles/', include('profile_app.api.urls')),    
+    path('api/profile/', include('profile_app.api.urls')),    
+    path('api/profiles/', include('profile_app.api.urls')),    
     # path('user/', include('user_auth_app.api.urls')),   
 ]

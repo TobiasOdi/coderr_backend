@@ -4,6 +4,10 @@ from rest_framework.response import Response
 from profile_app.models import Profile
 from profile_app.api.serializers import ProfileSerializer
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+import json
+
 
 class ProfileInfoView(generics.RetrieveUpdateAPIView):
     authenticaiton_classes = [TokenAuthentication]
@@ -11,31 +15,19 @@ class ProfileInfoView(generics.RetrieveUpdateAPIView):
         Ermöglicht es einem Benutzer, bestimmte Profilinformationen zu aktualisieren. 
     """
     queryset = Profile.objects.all()
-    print("Queryset", queryset)
     serializer_class = ProfileSerializer
 
+    def get_object(self):
+        queryset = self.get_queryset()
+        print("QUERYSET", queryset)
+        filter = {}
+        for user in self.lookup_field:
+            filter["user"] = self.kwargs["pk"]
 
-    # new_user_Data = json.loads(request.body)
-    # get_user_obj = User.objects.filter(username=new_user_Data['email']).exists()
-    # if new_user_Data['password'] != new_user_Data['repeated_password']:
-    #     return Response( status=status.HTTP_400_BAD_REQUEST)
-    # else:
-    #     if get_user_obj:
-    #         return Response(status=status.HTTP_400_BAD_REQUEST)
-    #     else:
-    #         new_user_id_token = createObjectsForNewUser(new_user_Data)               
-    #         return Response(
-    #             {
-    #                 "user": 1,
-    #                 "username": "max_mustermann",
-    #                 "first_name": "Max",
-    #                 "last_name": "Mustermann",
-    #                 "file": "profile_picture.jpg",
-    #                 "location": "Berlin",
-    #                 "tel": "123456789",
-    #                 "description": "Business description",
-    #                 "working_hours": "9-17",
-    #                 "type": "business",
-    #                 "email": "max@business.de",
-    #                 "created_at": "2023-01-01T12:00:00"
-    #             }, status=status.HTTP_200_OK)
+        obj = get_object_or_404(queryset, **filter)
+        print("OBJECT", obj)
+        self.check_object_permissions(self.request, obj)
+    
+        return obj
+
+

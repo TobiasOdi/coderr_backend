@@ -58,7 +58,7 @@ class BaseInfoView(APIView):
     """ Retrieves general basic information about the platform, including the number of reviews, the average review score, the number of 
     business users and the number of listings. 
     """    
-    def get(self, request, format=None):   
+    def get(self, request, format=None):
         reviews_av_rating = Review.objects.all().aggregate(Avg("rating"))
         if reviews_av_rating["rating__avg"] == None:
             reviews_av_rating = "-"
