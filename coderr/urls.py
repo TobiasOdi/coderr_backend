@@ -27,5 +27,7 @@ urlpatterns = [
     path('api/login/', LoginView.as_view()),
     path('api/profile/', include('profile_app.api.urls')),    
     path('api/profiles/', include('profile_app.api.urls')),    
+    path('api/reviews/', include('reviews_app.api.urls')),    
+
     # path('user/', include('user_auth_app.api.urls')),   
 ]

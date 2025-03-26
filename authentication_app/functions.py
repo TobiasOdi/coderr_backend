@@ -20,7 +20,7 @@ def create_new_profile(newUserData, new_user):
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-    Profile.objects.create(
+    print("NEUES PROFIL", Profile.objects.create(
         auth_user=new_user,
         user=new_user.pk,
         type=newUserData["type"],
@@ -35,4 +35,6 @@ def create_new_profile(newUserData, new_user):
         description="",
         working_hours="",
         created_at=dt_string
-    )
+    ))
+    
+
