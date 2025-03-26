@@ -7,5 +7,14 @@ from django.shortcuts import get_object_or_404
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = "__all__"
-        # exclude = "auth_user"
+        exclude = ["id", "auth_user"]
+
+class ListCustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ["user", "username", "first_name", "last_name", "file", "uploaded_at", "type"]
+        
+class ListBusinessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ["user", "username", "first_name", "last_name", "file", "location", "tel", "description", "working_hours", "type"]

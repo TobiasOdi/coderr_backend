@@ -26,10 +26,9 @@ class RegistrationView(APIView):
             if get_user_obj:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             else:
-                new_user_id_token = createObjectsForNewUser(new_user_Data)               
+                new_user_id_token = create_new_user_object(new_user_Data)               
                 return Response(
-                    {
-                        "token": str(new_user_id_token[1]),
+                    {   "token": str(new_user_id_token[1]),
                         "username": new_user_Data['username'], 
                         "email": new_user_Data['email'], 
                         "user_id": new_user_id_token[0]

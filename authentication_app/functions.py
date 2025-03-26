@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from datetime import datetime
 
 
-def createObjectsForNewUser(newUserData):
+def create_new_user_object(newUserData):
     new_user = User.objects.create_user(
         username=newUserData['username'],
         password=newUserData['password'],
@@ -13,7 +13,10 @@ def createObjectsForNewUser(newUserData):
     new_user.set_password(newUserData['password'])
     new_user.save()
     token, created = Token.objects.get_or_create(user=new_user)
-    
+    create_new_profile(newUserData, new_user)
+    return [new_user.id, token]
+
+def create_new_profile(newUserData, new_user):
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -33,5 +36,3 @@ def createObjectsForNewUser(newUserData):
         working_hours="",
         created_at=dt_string
     )
-
-    return [new_user.id, token]
