@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework import status
@@ -26,7 +26,8 @@ class RegistrationView(APIView):
             if get_user_obj:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             else:
-                new_user_id_token = create_new_user_object(new_user_Data)               
+                new_user_id_token = create_new_user_object(new_user_Data) 
+                  
                 return Response(
                     {   "token": str(new_user_id_token[1]),
                         "username": new_user_Data['username'], 
@@ -41,11 +42,12 @@ class LoginView(APIView):
             request (json): Form data
         """
         login_Data = json.loads(request.body)
-        user = authenticate(username=login_Data['username'], password=login_Data['password'])
-        get_user_obj = User.objects.filter(username=login_Data['username']).exists()
+        user = authenticate(request, username=login_Data['username'], password=login_Data['password'])
+        get_user_obj = User.objects.filter(pk=user.pk).exists()
         if get_user_obj:
             if user:
                 token = Token.objects.get(user=user)
+                login(request, user)
                 return Response({"token": str(token), "username": user.username, "email": user.email, "user_id": user.id}, 
                                 status=status.HTTP_201_CREATED)
             else:

@@ -2,8 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from authentication_app.api.views import RegistrationView, LoginView, BaseInfoView
 from profile_app.api.views import ProfileInfoView
-from reviews_app.api.views import ListAllReviews
+from reviews_app.api.views import ListAndCreateReviews, UpdateReviews
 
 urlpatterns = [
-    path('', ListAllReviews.as_view()),
+    path('', ListAndCreateReviews.as_view()),
+    path('<int:review_id>/', UpdateReviews.as_view()),
+
 ]
