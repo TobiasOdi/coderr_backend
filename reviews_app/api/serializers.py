@@ -7,19 +7,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = "__all__"
-    
-    def validate(self, data):
-        user = self.context['request'].user
-        rating = data['rating']
-        description = data['description']
-        
-        if rating != None and description != None:
-            if Review.objects.filter(reviewer=user.pk, description=description).exists():
-                raise serializers.ValidationError("You cannot update this review, because you are not the owner.")
-        else:
-            raise serializers.ValidationError()
-        return data
-    
+        # exclude = ["id", "auth_user"]
+       
     def create(self, data):
         user = self.context['request'].user
         customer_profile = Profile.objects.filter(auth_user=user).exists()
@@ -33,17 +22,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 else:
                     now = datetime.now()    
                     dt_string = now.strftime("%Y-%m-%dT%H:%M:%S")
-                    print({
-                                "business_user": data['business_user'],
-                                "reviewer": 9, 
-                                "rating": 3.6,
-                                "description": data["description"],
-                                "created_at": dt_string,
-                                "updated_at": dt_string
-                            })
-                    
-                    
-                    
                     return {
                                 "business_user": data['business_user'],
                                 "reviewer": user.pk, 
@@ -54,8 +32,27 @@ class ReviewSerializer(serializers.ModelSerializer):
                             }
             return serializers.ValidationError("Only users with a customer profile are able to create a review.")
 
+    def update(self, data, obj):
+        user = self.context['request'].user
+        rating = data['rating']
+        description = data['description']       
+        
+        print("DATAAAAAA", data)
+        
+        if rating != None and description != None:
+            if obj.reviewer == user.pk:
+                return data
+        else:
+            raise serializers.ValidationError("You cannot update this review, because you are not the owner.")
 
-
+    def destroy(self, data, obj):
+        user = self.context['request'].user
+        rating = data['rating']
+        description = data['description']
+        
+        if obj.reviewer == user.pk:
+                raise serializers.ValidationError("You cannot delete this review, because you are not the owner.")
+        return data
 
 
 

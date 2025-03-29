@@ -1,6 +1,4 @@
 from rest_framework import generics
-from rest_framework import status
-from rest_framework.response import Response
 from profile_app.models import Profile
 from profile_app.api.serializers import ProfileSerializer, ListCustomerSerializer, ListBusinessSerializer
 from rest_framework.authentication import TokenAuthentication

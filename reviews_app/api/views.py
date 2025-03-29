@@ -1,18 +1,10 @@
-from django.shortcuts import render
 from rest_framework import generics
 from reviews_app.models import Review
 from reviews_app.api.serializers import ReviewSerializer
 from rest_framework.authentication import TokenAuthentication
 import json
-from datetime import datetime
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework import status
 from reviews_app.api.permissions import CustomReviewPermission
-from profile_app.models import Profile
-
-
 
 # Create your views here.
 class ListAndCreateReviews(generics.ListCreateAPIView):
@@ -25,8 +17,7 @@ class ListAndCreateReviews(generics.ListCreateAPIView):
     permission_classes = [CustomReviewPermission]
     ordering_fields = ['updated_at', 'rating']
     
-    def get_queryset(self, request):
-        print(request.user.is_authenticatet)
+    def get_queryset(self):
         queryset = Review.objects.all()
         business_user_id = self.request.query_params.get('business_user_id')
         reviewer_id = self.request.query_params.get('reviewer_id')
@@ -40,23 +31,8 @@ class ListAndCreateReviews(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         serializer.save(auth_user=self.request.user)
-        
-            # new_review = json.loads(request.body)  
-            # now = datetime.now()    
-            # dt_string = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-            # Review.objects.create(
-            #     auth_user = request.user,
-            #     business_user = new_review['business_user'],
-            #     reviewer = request.user.pk, 
-            #     rating = new_review["rating"],
-            #     description = new_review["description"],
-            #     created_at = dt_string,
-            #     updated_at = dt_string
-            # )
-
-
-class UpdateReviews(generics.UpdateAPIView):
+class UpdateDeleteOwnReview(generics.RetrieveUpdateDestroyAPIView):
     """ Updates selected fields of an existing rating (only 'rating' and 'description' are editable). The endpoint allows the creator of the 
         rating to edit the rating.
     """
@@ -72,5 +48,7 @@ class UpdateReviews(generics.UpdateAPIView):
             filter["id"] = self.kwargs["review_id"]
         obj = get_object_or_404(queryset, **filter)
         self.check_object_permissions(self.request, obj)
-        return obj
+        return obj or {}
+        
+
         
