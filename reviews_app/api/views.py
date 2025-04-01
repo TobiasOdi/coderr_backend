@@ -30,7 +30,7 @@ class ListAndCreateReviews(generics.ListCreateAPIView):
     
     
     def perform_create(self, serializer):
-        serializer.save(auth_user=self.request.user)
+        serializer.save(user=self.request.user)
 
 class UpdateDeleteOwnReview(generics.RetrieveUpdateDestroyAPIView):
     """ Updates selected fields of an existing rating (only 'rating' and 'description' are editable). The endpoint allows the creator of the 

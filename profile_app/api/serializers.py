@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        exclude = ["id", "auth_user"]
+        exclude = ["id"]
 
 class ListCustomerSerializer(serializers.ModelSerializer):
     class Meta:

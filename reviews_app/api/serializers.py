@@ -11,11 +11,11 @@ class ReviewSerializer(serializers.ModelSerializer):
        
     def create(self, data):
         user = self.context['request'].user
-        customer_profile = Profile.objects.filter(auth_user=user).exists()
+        customer_profile = Profile.objects.filter(user=user).exists()
         print("POST DATEN", data)
 
         if customer_profile:
-            profile = Profile.objects.filter(auth_user=user)
+            profile = Profile.objects.filter(user=user)
             if profile['type'] == "customer":
                 if Review.objects.filter(business_user=data['business_user']):
                     return serializers.ValidationError("You have already created a review for this business user.")
