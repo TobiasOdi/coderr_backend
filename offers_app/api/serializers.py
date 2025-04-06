@@ -4,15 +4,16 @@ from reviews_app.models import Review
 from rest_framework import serializers
 from datetime import datetime
 from django.contrib.auth.models import User
-import json
+from offers_app.api.functions import CustomValidation
+from rest_framework import status
 
 class UserDetailsSerializer(serializers.ModelSerializer):
     features = serializers.JSONField()
     class Meta:        
         model = UserDetails
-        exclude = ["id", "user"]
+        fields = "__all__"
         
-class OfferDetailSerializer(serializers.ModelSerializer):   
+class OfferDetailsSerializer(serializers.ModelSerializer):   
     class Meta:        
         model = OfferDetails
         # exclude = ["offer"]
@@ -24,41 +25,21 @@ class ListOfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = "__all__"
 
-
-
 class OfferSerializer(serializers.ModelSerializer):
-    # created_at=serializers
-    # updated_at=dt_string
-    details = OfferDetailSerializer(many=True)
-    # details = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-    # user_details = UserDetailsSerializer()
-    
+    details = OfferDetailsSerializer(many=True)  
     class Meta:        
         model = Offer
         fields = ["title", "image", "description", "details"]
-        
-    # def validate_details(self, data):
-    #     print("DATA", data)
-    #     # print("REQUEST DATA", request_data)   
-    #     # subtaskData = currentTask[0]['subtaskData']
-
-    #     details = OfferDetails.objects.create()
-               
+           
     def create(self, data):
         user = self.context['request'].user
         profile = Profile.objects.filter(user=15).values()
-        print("PROFILE", profile[0]["type"])
-        if profile[0]["type"] != "business":    
-            return serializers.ValidationError("Only users with a business profile are able to create an offer.")
+        if profile[0]["type"] != "business":  
+            raise CustomValidation("Authenticated user is not a 'business' profile", profile[0]["username"], status.HTTP_403_FORBIDDEN)  
         else:
-            # print("DETAILS DATA", data['details']['features'])
             offer = Offer.objects.create(**data)
-            # details_data = data.pop('details')
-            # details = OfferDetails.objects.create(**data['details'])
-            # offer.details.set(details)
             return offer
-        
-        
+       
         
         
     # def update(self, data, obj):

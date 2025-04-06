@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404
 from offers_app.api.permissions import ListCreateOfferPermission
 from django.contrib.auth.models import User
 from datetime import datetime
-
+from offers_app.api.functions import filtered_queryset, get_additional_field_data
+from offers_app.models import UserDetails
 
 # Create your views here.
 class ListAndCreateOffer(generics.ListCreateAPIView):
@@ -21,50 +22,22 @@ class ListAndCreateOffer(generics.ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ListOfferSerializer
-        return OfferSerializer
-
+        else:
+            return OfferSerializer
     
     def get_queryset(self):
         queryset = Offer.objects.all()
-        creator_id = self.request.query_params.get('creator_id')
-        min_price = self.request.query_params.get('min_price')
-        max_delivery_time = self.request.query_params.get('max_delivery_time')
-
-        if creator_id is not None:
-            queryset = queryset.filter(business_user=creator_id)
-        if min_price is not None:
-            queryset = queryset.filter(min_price__egt=min_price)
-        if max_delivery_time is not None:
-            queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
-        return queryset
-    
+        queryset = filtered_queryset(self, queryset)
+        print("QUERYSET", queryset)
+        
     def perform_create(self, serializer):
-        print("SERIALIZER", serializer)
-        now = datetime.now()
-        dt_string = now.strftime("%Y-%m-%dT%H:%M:%S")
-
-        u = User.objects.get(pk=15)
+        additional_field_data = get_additional_field_data(self)
         serializer.save(
-            user=u,
-            created_at=dt_string,
-            updated_at=dt_string,
+            user=additional_field_data["user"],
+            created_at=additional_field_data["date"],
+            updated_at=additional_field_data["date"],
+            user_details=additional_field_data["user_details"]
         )
-        
-        # print("NEW OFFER", new_offer.id)
-        
-        # currentTask = json.loads(request.body)      
-        # subtaskData = currentTask[0]['subtaskData']
-        # newTask = createNewTask(taskData, request)      
-        # for subtask in subtaskData: 
-        #     SubtaskItem.objects.create(
-        #         parent_task_id=newTask,
-        #         status=subtask['status'], 
-        #         subtaskName=subtask['subtaskName']
-        #     )
-        
-        
-        
-        # serializer.save(user=self.request.user)
 
 class OfferDetailUpdateDelete(generics.ListCreateAPIView):
     """ This endpoint returns a list of offers. Each offer contains an overview of the offer details, the minimum price and the shortest delivery time.
