@@ -4,7 +4,7 @@ from reviews_app.api.serializers import ReviewSerializer
 from rest_framework.authentication import TokenAuthentication
 import json
 from django.shortcuts import get_object_or_404
-from reviews_app.api.permissions import CustomReviewPermission
+from reviews_app.api.permissions import ReviewListCreatePermission
 
 # Create your views here.
 class ListAndCreateReviews(generics.ListCreateAPIView):
@@ -14,7 +14,7 @@ class ListAndCreateReviews(generics.ListCreateAPIView):
     """
     serializer_class = ReviewSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [CustomReviewPermission]
+    permission_classes = [ReviewListCreatePermission]
     ordering_fields = ['updated_at', 'rating']
     
     def get_queryset(self):
@@ -39,7 +39,7 @@ class UpdateDeleteOwnReview(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [CustomReviewPermission]
+    permission_classes = [ReviewListCreatePermission]
 
     def get_object(self):
         queryset = self.get_queryset()

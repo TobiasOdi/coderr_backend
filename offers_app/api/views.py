@@ -1,125 +1,71 @@
 from rest_framework import generics
-from offers_app.models import Offer
-from offers_app.api.serializers import ListOfferSerializer, OfferSerializer
+from offers_app.models import Offer, OfferDetails
+from offers_app.api.serializers import OfferListSerializer, OfferSerializer, OfferSpecificSerializer, OfferSpecificDetailsSerializer
 from rest_framework.authentication import TokenAuthentication
 import json
 from django.shortcuts import get_object_or_404
-from offers_app.api.permissions import ListCreateOfferPermission
+from offers_app.api.permissions import IsAuthenticatedPermission, ListCreateOfferPermission
 from django.contrib.auth.models import User
 from datetime import datetime
 from offers_app.api.functions import filtered_queryset, get_additional_field_data
-from offers_app.models import UserDetails
 
 # Create your views here.
 class ListAndCreateOffer(generics.ListCreateAPIView):
     """ This endpoint returns a list of offers. Each offer contains an overview of the offer details, the minimum price and the shortest delivery time.
         This end point makes it possible to create a new offer.
     """
-    #   permission_classes = [ListCreateOfferPermission]
+    # permission_classes = [IsAuthenticatedPermission, ListCreateOfferPermission]
     ordering_fields = ['updated_at', 'min_price']
     search_fields = ['title', 'description', 'user__first_name', 'user__last_name']
     
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return ListOfferSerializer
+            return OfferListSerializer
         else:
             return OfferSerializer
     
     def get_queryset(self):
         queryset = Offer.objects.all()
         queryset = filtered_queryset(self, queryset)
-        print("QUERYSET", queryset)
-        
+        return queryset
+                
     def perform_create(self, serializer):
+        # print("SERIALIZER", serializer.data)
         additional_field_data = get_additional_field_data(self)
         serializer.save(
             user=additional_field_data["user"],
             created_at=additional_field_data["date"],
             updated_at=additional_field_data["date"],
-            user_details=additional_field_data["user_details"]
         )
 
-class OfferDetailUpdateDelete(generics.ListCreateAPIView):
-    """ This endpoint returns a list of offers. Each offer contains an overview of the offer details, the minimum price and the shortest delivery time.
-        This end point makes it possible to create a new offer.
+class OfferDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    """ This endpoint returns the details of a specific offer based on the specified ID.
+        Updates a specific offer. A PATCH only overwrites the specified fields. Not all fields need to be specified, only those that are to be updated.
+        Löscht ein spezifisches Angebot anhand der angegebenen ID. 
     """
-    serializer_class = OfferSerializer
-    permission_classes = [ListCreateOfferPermission]
-    ordering_fields = ['updated_at', 'min_price']
-    search_fields = ['title', 'description', 'user__first_name', 'user__last_name']
+    serializer_class = OfferSpecificSerializer
+    queryset = Offer.objects.all()
+    # permission_classes = [ListCreateOfferPermission]   
     
-    
-    def get_queryset(self):
-        queryset = Offer.objects.all()
-        creator_id = self.request.query_params.get('creator_id')
-        min_price = self.request.query_params.get('min_price')
-        max_delivery_time = self.request.query_params.get('max_delivery_time')
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        offer = Offer.objects.get(pk=pk)
+        return offer
+        
+        
+        # queryset = self.get_queryset()
+        # filter = {}
+        # for id in self.lookup_field:
+        #     filter["id"] = self.kwargs["pk"]
+        # obj = get_object_or_404(queryset, **filter)
+        # self.check_object_permissions(self.request, obj)
+        # return obj
 
-        if creator_id is not None:
-            queryset = queryset.filter(business_user=creator_id)
-        if min_price is not None:
-            queryset = queryset.filter(min_price__egt=min_price)
-        if max_delivery_time is not None:
-            queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
-        return queryset
-    
-    
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
-        
-        
-    
-    # def get_queryset(self):
-    #     return RackItem.objects.filter(shopper=self.request.user)
+class ListDetails(generics.ListAPIView):
+    serializer_class = OfferSpecificDetailsSerializer
+    queryset = OfferDetails.objects.all()
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.DATA)
-
-    #     if not serializer.is_valid():
-    #         return Response(
-    #             serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    #     item = RackItem.objects.create(
-    #         shopper=request.user,
-    #         item_url=serializer.data['item_url'],
-    #         item_image_url=serializer.data['item_image_url'])
-
-    #     result = RackItemSerializer(item)
-    #     return Response(result.data, status=status.HTTP_201_CREATED)    
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-# class UpdateDeleteOwnReview(generics.RetrieveUpdateDestroyAPIView):
-#     """ Updates selected fields of an existing rating (only 'rating' and 'description' are editable). The endpoint allows the creator of the 
-#         rating to edit the rating.
-#     """
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-#     authentication_classes = [TokenAuthentication]
-#     permission_classes = [CustomReviewPermission]
-
-#     def get_object(self):
-#         queryset = self.get_queryset()
-#         filter = {}
-#         for id in self.lookup_field:
-#             filter["id"] = self.kwargs["review_id"]
-#         obj = get_object_or_404(queryset, **filter)
-#         self.check_object_permissions(self.request, obj)
-#         return obj or {}
-        
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        return OfferDetails.objects.get(offer=pk)
 
