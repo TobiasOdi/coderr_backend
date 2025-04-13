@@ -1,4 +1,4 @@
-from offers_app.models import Offer, OfferDetails
+from offers_app.models import Offer, Details
 from profile_app.models import Profile
 from reviews_app.models import Review
 from rest_framework import serializers
@@ -9,91 +9,75 @@ from rest_framework import status
 import json
 from django.db.models import Min
         
-class OfferDetailsSerializer(serializers.ModelSerializer):  
+class DetailsSerializer(serializers.ModelSerializer):  
     class Meta:        
-        model = OfferDetails
+        model = Details
         fields = "__all__"
 
-class OfferDetailsLinkSerializer(serializers.HyperlinkedModelSerializer):  
+class DetailsLinkSerializer(serializers.HyperlinkedModelSerializer):  
     class Meta:        
-        model = OfferDetails
+        model = Details
         fields = '__all__'
 
 class OfferGETSerializer(serializers.ModelSerializer):
-    details = OfferDetailsSerializer(many=True, read_only=True)
-    print("DETAILS", details)
-    details_ids = serializers.PrimaryKeyRelatedField(
-        queryset=OfferDetails.objects.all(),
-        many=True,
-        write_only=True,
-        source='details'
-    )
-    print("DETAILS IDS", details_ids)
-    # details_ids = serializers.SerializerMethodField('get_details_ids')
-    # details_count = serializers.SerializerMethodField('get_details_count')
+    details = DetailsSerializer(many=True, read_only=True)
     min_price = serializers.SerializerMethodField('min_price_calc')
     min_delivery_time = serializers.SerializerMethodField('min_delivery_time_calc')
 
     class Meta:        
         model = Offer
-        fields = ["title", "image", "description", "details", "details_ids", "min_price", "min_delivery_time"]
-
-    # def get_details_ids(self, obj):
-    #     queryset = OfferDetails.objects.filter(offer=obj)
-    #     return queryset
-        
-        
-    # def get_details_count(self, obj):
-    #     return obj.details.count()
+        fields = ["title", "image", "description", "details", "min_price", "min_delivery_time"]
 
     def min_price_calc(self, obj): 
-        price = OfferDetails.objects.filter(offer=obj.pk).aggregate(Min("price", default=0))
-        return price.values()
+        price = Details.objects.filter(offer=obj.pk).aggregate(Min("price", default=0))
+        return price["price__min"]
 
     def min_delivery_time_calc(self, obj):
-        time = OfferDetails.objects.filter(offer=obj.pk).aggregate(Min("delivery_time_in_days", default=0))     
-        return time.values()
+        time = Details.objects.filter(offer=obj.pk).aggregate(Min("delivery_time_in_days", default=0))     
+        return time["delivery_time_in_days__min"]
      
 class OfferListSerializer(OfferGETSerializer):
     class Meta:        
         model = Offer
-        fields = ["id", "user", "title", "image", "description", "created_at", "updated_at", "details", "details_ids", "min_price", "min_delivery_time"]
+        fields = ["id", "user", "title", "image", "description", "created_at", "updated_at", "details", "min_price", "min_delivery_time"]
 
 
 class OfferSerializer(serializers.ModelSerializer):
-    details = OfferDetailsSerializer(many=True)  
+    details = DetailsSerializer(many=True)  
     class Meta:        
         model = Offer
         fields = ["title", "image", "description", "details"]
            
-    def create(self, data):      
-        offer_details = data["details"]
+    def create(self, data): 
+        print("DATAAAAAA", data)     
+        offer_details = data['details']
+        print("OFFER DETAILS",offer_details)
         offer_data = data
         try:
             del offer_data['details']
         except KeyError as ex:
             print("No such key: '%s'" % ex.message)
         offer = Offer.objects.create(**data)
-        batch = [OfferDetails(offer=offer,
+        batch = [Details(offer=offer,
                               title=row['title'], 
                               revisions=row['revisions'], 
                               delivery_time_in_days=row['delivery_time_in_days'], 
                               price=row['price'], 
                               features=row['features'], 
                               offer_type=row['offer_type']) for row in offer_details]
-        OfferDetails.objects.bulk_create(batch)
+        Details.objects.bulk_create(batch)
         return offer
 
 
 class OfferSpecificSerializer(serializers.ModelSerializer):
-    details = OfferDetailsLinkSerializer
+    details = DetailsLinkSerializer
     class Meta:
         model = Offer
         exclude = ["user_details"]
 
 class OfferSpecificDetailsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = OfferDetails
+        model = Details
         fields = '__all__'
 
         

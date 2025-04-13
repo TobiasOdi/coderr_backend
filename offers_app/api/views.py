@@ -1,5 +1,5 @@
 from rest_framework import generics
-from offers_app.models import Offer, OfferDetails
+from offers_app.models import Offer, Details
 from offers_app.api.serializers import OfferListSerializer, OfferSerializer, OfferSpecificSerializer, OfferSpecificDetailsSerializer
 from rest_framework.authentication import TokenAuthentication
 import json
@@ -63,9 +63,9 @@ class OfferDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
 
 class ListDetails(generics.ListAPIView):
     serializer_class = OfferSpecificDetailsSerializer
-    queryset = OfferDetails.objects.all()
+    queryset = Details.objects.all()
 
     def get_object(self):
         pk = self.kwargs.get('pk')
-        return OfferDetails.objects.get(offer=pk)
+        return Details.objects.get(offer=pk)
 
