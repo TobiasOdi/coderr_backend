@@ -20,9 +20,13 @@ class ReviewListCreatePermission(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        if request.method in ['GET', 'POST', 'PATCH', 'DELETE']:
+        if request.method == "GET":
+            return True
+
+        if request.method in ['POST', 'PATCH', 'DELETE']:
             return request.user.is_authenticated
         raise GenericAPIException(detail="Unauthorized. The user must be authenticated.", status_code=401)
+
 
     def has_object_permission(self, request, view, obj):
         if request.method == "POST":
@@ -40,19 +44,18 @@ class ReviewListCreatePermission(permissions.BasePermission):
 
 
 
-    def has_permission(self, request, obj):
-        if request.method == "GET":
-            return True
+    # def has_permission(self, request, obj):
+    
         
-        if request.method == "POST":
-            print("METHOD POST")
-            # user = self.context['request'].user
-            # current_profile = Profile.objects.filter(user=request.user)
-            current_profile = Profile.objects.filter(user=15).values()       
-            if current_profile[0]["type"] != "customer":  
-                raise GenericAPIException(detail="Authenticated user is not a 'business' profile", status_code=403)
+    #     if request.method == "POST":
+    #         print("METHOD POST")
+    #         # user = self.context['request'].user
+    #         # current_profile = Profile.objects.filter(user=request.user)
+    #         current_profile = Profile.objects.filter(user=15).values()       
+    #         if current_profile[0]["type"] != "customer":  
+    #             raise GenericAPIException(detail="Authenticated user is not a 'business' profile", status_code=403)
             
-            return True
+    #         return True
 
 
 # class IsOwnerProfilePermission(permissions.BasePermission):

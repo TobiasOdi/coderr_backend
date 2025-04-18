@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from authentication_app.api.views import RegistrationView, LoginView, BaseInfoView
 from profile_app.api.views import ProfileInfoView
+from offers_app.api.views import OfferDetailItem
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
@@ -28,5 +29,7 @@ urlpatterns = [
     path('api/profile/', include('profile_app.api.urls')),    
     path('api/profiles/', include('profile_app.api.urls')),    
     path('api/reviews/', include('reviews_app.api.urls')),    
-    path('api/offers/', include('offers_app.api.urls')),    
+    path('api/offers/', include('offers_app.api.urls')),
+    path('api/offerdetails/<int:pk>/', OfferDetailItem.as_view()),
+    path('api/orders/', include('orders_app.api.urls')),     
 ]

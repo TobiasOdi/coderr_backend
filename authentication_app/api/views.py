@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate,login
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,7 +9,6 @@ from profile_app.models import Profile
 from reviews_app.models import Review
 from offers_app.models import Offer
 from django.db.models import Avg
-
 
 class RegistrationView(APIView):
     def post(self, request, format=None):

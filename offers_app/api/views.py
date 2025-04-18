@@ -1,6 +1,6 @@
 from rest_framework import generics
 from offers_app.models import Offer, Details
-from offers_app.api.serializers import OfferListSerializer, OfferSerializer, OfferSpecificSerializer, OfferSpecificDetailsSerializer
+from offers_app.api.serializers import OfferListSerializer, OfferSerializer, OfferDetailSerializer, OfferDetailPatchDeleteSerializer, DetailItemSerializer
 from rest_framework.authentication import TokenAuthentication
 import json
 from django.shortcuts import get_object_or_404
@@ -8,6 +8,7 @@ from offers_app.api.permissions import IsAuthenticatedPermission, ListCreateOffe
 from django.contrib.auth.models import User
 from datetime import datetime
 from offers_app.api.functions import filtered_queryset, get_additional_field_data
+from offers_app.api.pagination import LargeResultSetPagination
 
 # Create your views here.
 class ListAndCreateOffer(generics.ListCreateAPIView):
@@ -17,6 +18,7 @@ class ListAndCreateOffer(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticatedPermission, ListCreateOfferPermission]
     ordering_fields = ['updated_at', 'min_price']
     search_fields = ['title', 'description', 'user__first_name', 'user__last_name']
+    pagination_class = LargeResultSetPagination
     
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -43,9 +45,14 @@ class OfferDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
         Updates a specific offer. A PATCH only overwrites the specified fields. Not all fields need to be specified, only those that are to be updated.
         Löscht ein spezifisches Angebot anhand der angegebenen ID. 
     """
-    serializer_class = OfferSpecificSerializer
-    queryset = Offer.objects.all()
+    
     # permission_classes = [ListCreateOfferPermission]   
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return OfferDetailSerializer
+        elif self.request.method in ['PATCH', 'DELETE']:
+            return OfferDetailPatchDeleteSerializer
     
     def get_object(self):
         pk = self.kwargs.get('pk')
@@ -53,19 +60,12 @@ class OfferDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
         return offer
         
         
-        # queryset = self.get_queryset()
-        # filter = {}
-        # for id in self.lookup_field:
-        #     filter["id"] = self.kwargs["pk"]
-        # obj = get_object_or_404(queryset, **filter)
-        # self.check_object_permissions(self.request, obj)
-        # return obj
-
-class ListDetails(generics.ListAPIView):
-    serializer_class = OfferSpecificDetailsSerializer
-    queryset = Details.objects.all()
-
+class OfferDetailItem(generics.RetrieveAPIView):
+    # permission_classes = [ListCreateOfferPermission]   
+    serializer_class = DetailItemSerializer
     def get_object(self):
         pk = self.kwargs.get('pk')
-        return Details.objects.get(offer=pk)
-
+        print("PK", pk)
+        offer_detail = Details.objects.get(pk=pk)
+        return offer_detail
+        

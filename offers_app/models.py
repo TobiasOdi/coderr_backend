@@ -25,6 +25,12 @@ class Details(models.Model):
 
     def __str__(self):
         return self.title
+    
+class UserDetails(models.Model):
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name="user_details", null=True) 
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    username = models.CharField(max_length=50, blank=True)
 
 
 
