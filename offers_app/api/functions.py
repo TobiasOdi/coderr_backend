@@ -31,13 +31,13 @@ def filtered_queryset(self, queryset):
       return queryset
     
 def get_additional_field_data(self):
-    user=self.request.user
+    # user=self.request.user
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%dT%H:%M:%S")
     # u = User.objects.get(pk=user.pk)
-    u = User.objects.get(email="tobias@business.ch")
+    u = User.objects.get(pk=8)
     # userdata = User.objects.filter(pk=user.pk).values()
-    userdata = User.objects.filter(pk=u.pk).values()
+    # userdata = User.objects.filter(pk=u.pk).values()
     # print("USEDATA", userdata)  
 
     return {

@@ -19,6 +19,7 @@ from django.urls import path, include
 from authentication_app.api.views import RegistrationView, LoginView, BaseInfoView
 from profile_app.api.views import ProfileInfoView
 from offers_app.api.views import OfferDetailItem
+from orders_app.api.views import OrdersInProgress, OrdersCompleted
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
@@ -31,5 +32,8 @@ urlpatterns = [
     path('api/reviews/', include('reviews_app.api.urls')),    
     path('api/offers/', include('offers_app.api.urls')),
     path('api/offerdetails/<int:pk>/', OfferDetailItem.as_view()),
-    path('api/orders/', include('orders_app.api.urls')),     
+    path('api/orders/', include('orders_app.api.urls')),
+    path('api/order-count/<int:pk>/', OrdersInProgress.as_view()),     
+    path('api/completed-order-count/<int:pk>/', OrdersCompleted.as_view())     
+ 
 ]
